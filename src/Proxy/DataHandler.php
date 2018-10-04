@@ -76,8 +76,10 @@ final class DataHandler
         }
         $protocol->onClose($this);
 
+        $targetHost = $this->translator->translate($protocol->getTargetHost());
+        error_log("{$request->getUri()} -> {$targetHost}");
         (new Connector($this->loop))
-            ->connect($protocol->getTargetHost())
+            ->connect($targetHost)
             ->then(
                 $protocol,
                 function (\Exception $exception) {
