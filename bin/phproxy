@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+(new \Paxal\Phproxy\Application())->run();

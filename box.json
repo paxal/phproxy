@@ -1,0 +1,18 @@
+{
+    "output": "phproxy.phar",
+    "chmod": "0755",
+    "compactors": [
+        "Herrera\\Box\\Compactor\\Php"
+    ],
+    "main": "bin/phproxy",
+    "finder": [
+        {
+            "name": ["*.php"],
+            "exclude": ["Test", "test", "Tests", "tests"],
+            "in": ["bin", "src", "vendor"]
+        }
+    ],
+    "git-tag": "package_version",
+    "web": false,
+    "stub": true
+}

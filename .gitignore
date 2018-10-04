@@ -1,0 +1,6 @@
+/.idea/
+/vendor/
+/config.json
+/composer.lock
+/.php_cs.cache
+/phproxy*.phar

@@ -1,0 +1,33 @@
+{
+    "name": "paxal/phproxy",
+    "type": "project",
+    "description": "HTTP/HTTPS proxy that allows to redirect traffic",
+    "authors": [
+        {
+            "name": "Cyril Pascal",
+            "email": "cyril.pascal_github@m4x.org"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "react/event-loop": "^1.0",
+        "react/socket": "^1.1",
+        "symfony/console": "^4.1",
+        "symfony/http-foundation": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Paxal\\Phproxy\\": "src/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.13",
+        "phpstan/phpstan": "^0.10.3"
+    },
+    "replace": {
+        "paragonie/random_compat": "*"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
