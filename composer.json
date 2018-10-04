@@ -22,7 +22,13 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.13",
-        "phpstan/phpstan": "^0.10.3"
+        "phpstan/phpstan": "^0.10.3",
+        "phpunit/phpunit": "^7.3"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Paxal\\Tests\\Phproxy\\": "tests/"
+        }
     },
     "replace": {
         "paragonie/random_compat": "*"

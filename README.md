@@ -4,11 +4,11 @@ PHProxy is an HTTP/HTTPS proxy built for development purpose, with custom name
 resolution.
 
 Currently, is supports HTTPS protocol, and might support HTTP protocol in some
-conditions.
+conditions, and websocket as well.
 
 ## Install
 
-Clone this repository.
+Clone this repository or download a release on github.
 
 ## Run
 
@@ -32,6 +32,11 @@ Example : run locally on port 8001.
 
 * `--translate from=to` : will connect to `to` instead of `from`. Could be
   either ips or domain names for both `from` and `to`.
+
+Translations can also be all subdomains, for instance
+`.original.com=.target.net`. Then
+* `www.original.com` will be redirected to `www.target.net`
+* **BUT** `original.com` will **not** be redirected.
 
 ### SSL Support
 
