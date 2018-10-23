@@ -51,7 +51,7 @@ class Translator implements TranslatorInterface
     {
         foreach ($this->fullDomainHosts as $fullDomainHost => $replacement) {
             if (substr($host, -strlen($fullDomainHost)) === $fullDomainHost) {
-                if (false !== inet_pton($replacement)) {
+                if (false !== @inet_pton($replacement)) {
                     return $replacement;
                 }
 

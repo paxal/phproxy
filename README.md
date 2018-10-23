@@ -1,5 +1,7 @@
 # PHProxy
 
+[![Build Status](https://www.travis-ci.com/paxal/phproxy.svg?branch=master)](https://www.travis-ci.com/paxal/phproxy)
+
 PHProxy is an HTTP/HTTPS proxy built for development purpose, with custom name
 resolution.
 
