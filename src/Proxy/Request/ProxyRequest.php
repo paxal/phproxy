@@ -53,6 +53,7 @@ final class ProxyRequest
 
         $headersLines = explode("\r\n", $headers);
         $firstLine = array_shift($headersLines);
+        $headersLines = array_filter($headersLines);
 
         $doesMatch = (bool) preg_match('@^(?<METHOD>.*?) (?<URI>.*?) (?<PROTOCOL>.*?)$@', (string) $firstLine, $matches);
         if (!$doesMatch) {
