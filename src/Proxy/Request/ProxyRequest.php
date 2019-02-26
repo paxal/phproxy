@@ -6,6 +6,9 @@ namespace Paxal\Phproxy\Proxy\Request;
 
 use Symfony\Component\HttpFoundation\HeaderBag;
 
+/**
+ * Proxy request representation.
+ */
 final class ProxyRequest
 {
     /**

@@ -13,6 +13,9 @@ use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Handles every data that come into the proxy connection.
+ */
 final class DataHandler
 {
     /**

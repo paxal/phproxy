@@ -16,6 +16,7 @@ final class ConnectProtocol extends AbstractProtocol
         $this->local->write("{$this->request->getProtocol()} 200 OK\r\nProxy-agent: phproxy\r\n\r\n");
         $this->remote->write($this->request->getBody());
 
+        // Go between done, let everybody discuss together.
         $this->pipe();
     }
 }
