@@ -34,7 +34,7 @@ final class DirectProtocol extends AbstractProtocol
         return sprintf('%s:%d', $host, $port);
     }
 
-    protected function handle()
+    protected function handle(): void
     {
         $path = preg_replace('@^.*?://.*?/@', '/', $this->request->getUri());
         $dataToSend = sprintf(

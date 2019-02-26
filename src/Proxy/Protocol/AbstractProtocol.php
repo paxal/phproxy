@@ -35,15 +35,15 @@ abstract class AbstractProtocol implements Protocol
         $this->request = $request;
     }
 
-    public function __invoke(ConnectionInterface $remote)
+    public function __invoke(ConnectionInterface $remote): void
     {
         $this->remote = $remote;
         $this->handle();
     }
 
-    abstract protected function handle();
+    abstract protected function handle(): void;
 
-    protected function pipe()
+    protected function pipe(): void
     {
         $this->local->pipe($this->remote);
         $this->remote->pipe($this->local, ['end' => false]);

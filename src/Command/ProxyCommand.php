@@ -31,7 +31,7 @@ class ProxyCommand extends Command
         $this->loop = $loop;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('run')
@@ -58,7 +58,7 @@ class ProxyCommand extends Command
                 }
             }
 
-            if ($input->getOption('save')) {
+            if ((bool) $input->getOption('save')) {
                 OptionsHelper::save($configurationFile, $this->cleanOptionForSave($input->getOptions()));
             }
         }
@@ -73,15 +73,15 @@ class ProxyCommand extends Command
         }
         $server = new TcpServer($binding, $this->loop);
 
-        if ($input->getOption('ssl')) {
+        if ((bool) $input->getOption('ssl')) {
             $context = [];
-            if ($input->getOption('ssl-cert')) {
+            if ((bool) $input->getOption('ssl-cert')) {
                 $context['local_cert'] = $input->getOption('ssl-cert');
             }
-            if ($input->getOption('ssl-key')) {
+            if ((bool) $input->getOption('ssl-key')) {
                 $context['local_pk'] = $input->getOption('ssl-key');
             }
-            if ($input->getOption('ssl-passphrase')) {
+            if ((bool) $input->getOption('ssl-passphrase')) {
                 $context['passphrase'] = $input->getOption('passphare');
             }
 
@@ -128,9 +128,9 @@ class ProxyCommand extends Command
         $serverFactory->create($binding, $proxyHost, $translatorBuilder);
     }
 
-    private function parsePACConfiguration(string $pacConfiguration)
+    private function parsePACConfiguration(string $pacConfiguration): array
     {
-        if (!preg_match('|^(.+?:\d+?):(.+?:\d+?)$|', $pacConfiguration, $matches)) {
+        if (!(bool) preg_match('|^(.+?:\d+?):(.+?:\d+?)$|', $pacConfiguration, $matches)) {
             throw new \InvalidArgumentException(
                 'Bad PAC configuration value : should be BINDING_HOST:BINDING_PORT:EXTERNAL_PROXY_HOST:EXTERNAL_PROXY_PORT'
             );

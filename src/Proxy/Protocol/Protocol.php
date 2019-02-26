@@ -11,7 +11,7 @@ interface Protocol
 {
     public function __construct(ConnectionInterface $connection, ProxyRequest $request);
 
-    public function __invoke(ConnectionInterface $remote);
+    public function __invoke(ConnectionInterface $remote): void;
 
     public function getTargetHost(): string;
 
