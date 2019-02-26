@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Paxal\Phproxy\PAC;
 
-use Paxal\Phproxy\Translator\TranslatorBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -13,12 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ResponseFactory
 {
     /**
-     * @param string            $proxyHost         The proxy host, as of client point of view
-     * @param TranslatorBuilder $translatorBuilder The translator builder
+     * @param string   $proxyHost         The proxy host, as of client point of view
+     * @param string[] $translatedDomains Translated hosts, wildcards begin with a dot "."
      *
      * @return string A full response
      */
-    public static function create(string $proxyHost, TranslatorBuilder $translatorBuilder): string
+    public static function create(string $proxyHost, array $translatedDomains): string
     {
         $template = <<<TEMPLATE
 function FindProxyForURL(url, host) {
@@ -31,7 +30,7 @@ function FindProxyForURL(url, host) {
 
 TEMPLATE;
 
-        $matches = self::buildMatches($proxyHost, $translatorBuilder->getTranslatedDomains());
+        $matches = self::buildMatches($proxyHost, $translatedDomains);
 
         $contents = sprintf($template, $matches);
         $response = Response::create(

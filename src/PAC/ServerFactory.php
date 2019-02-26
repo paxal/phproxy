@@ -36,7 +36,7 @@ class ServerFactory
      */
     public function create(string $binding, string $proxyHost, TranslatorBuilder $translatorBuilder): ServerInterface
     {
-        $contents = ResponseFactory::create($proxyHost, $translatorBuilder);
+        $contents = ResponseFactory::create($proxyHost, $translatorBuilder->getTranslatedDomains());
         $server = new TcpServer($binding, $this->loop);
         $server->on('connection', function (ConnectionInterface $connection) use ($contents): void {
             $this->handle($connection, $contents);
