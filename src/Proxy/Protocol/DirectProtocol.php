@@ -60,6 +60,8 @@ final class DirectProtocol extends AbstractProtocol
             }
         }
         $headers->remove('expect');
+        // Tell the server to close the connection : hopefully, the server is well-implemented :)
+        $headers->set('connection', 'close');
 
         return $headers->__toString();
     }
