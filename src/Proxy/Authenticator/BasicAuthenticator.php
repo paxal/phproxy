@@ -34,7 +34,7 @@ final class BasicAuthenticator implements Authenticator
         if (!\is_string($headerValue)) {
             return false;
         }
-        $doesMatch = \preg_match('@^Basic\s+(?<CREDENTIALS>.*?)\s*$@im', $headerValue, $matches);
+        $doesMatch = (bool) \preg_match('@^Basic\s+(?<CREDENTIALS>.*?)\s*$@im', $headerValue, $matches);
 
         return $doesMatch && $this->areCredentialsValid($matches['CREDENTIALS'] ?? '');
     }

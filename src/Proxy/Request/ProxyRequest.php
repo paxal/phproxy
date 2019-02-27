@@ -6,6 +6,9 @@ namespace Paxal\Phproxy\Proxy\Request;
 
 use Symfony\Component\HttpFoundation\HeaderBag;
 
+/**
+ * Proxy request representation.
+ */
 final class ProxyRequest
 {
     /**
@@ -49,10 +52,10 @@ final class ProxyRequest
         $body = $parts[1] ?? '';
 
         $headersLines = explode("\r\n", $headers);
-        \assert(is_array($headersLines));
         $firstLine = array_shift($headersLines);
+        $headersLines = array_filter($headersLines);
 
-        $doesMatch = preg_match('@^(?<METHOD>.*?) (?<URI>.*?) (?<PROTOCOL>.*?)$@', (string) $firstLine, $matches);
+        $doesMatch = (bool) preg_match('@^(?<METHOD>.*?) (?<URI>.*?) (?<PROTOCOL>.*?)$@', (string) $firstLine, $matches);
         if (!$doesMatch) {
             throw new \InvalidArgumentException('Operation not supported');
         }

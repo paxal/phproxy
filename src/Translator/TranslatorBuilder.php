@@ -6,12 +6,20 @@ namespace Paxal\Phproxy\Translator;
 
 class TranslatorBuilder
 {
+    /**
+     * @var array<string, string>
+     */
     private $translations = [];
 
     protected function __construct()
     {
     }
 
+    /**
+     * Build the translator.
+     *
+     * @return TranslatorInterface
+     */
     public function build(): TranslatorInterface
     {
         return new Translator($this->translations);
@@ -29,12 +37,27 @@ class TranslatorBuilder
         return $this;
     }
 
+    /**
+     * @param iterable<string, string> $collection
+     *
+     * @return TranslatorBuilder
+     */
     public function add(iterable $collection): self
     {
         foreach ($collection as $name => $value) {
-            $this->translations[(string) $name] = (string) $value;
+            $this->set($name, $value);
         }
 
         return $this;
+    }
+
+    /**
+     * Retrieve list of translated domains / wildcards.
+     *
+     * @return string[]
+     */
+    public function getTranslatedDomains(): array
+    {
+        return array_keys($this->translations);
     }
 }

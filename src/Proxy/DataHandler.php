@@ -13,6 +13,9 @@ use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Handles every data that come into the proxy connection.
+ */
 final class DataHandler
 {
     /**
@@ -43,7 +46,7 @@ final class DataHandler
         $this->connection = $connection;
     }
 
-    public function __invoke($data): void
+    public function __invoke(string $data): void
     {
         try {
             $request = ProxyRequest::create($data);
@@ -88,7 +91,7 @@ final class DataHandler
             );
     }
 
-    private function sendError(int $status, string $statusText, string $content = '', string $contentType = 'text/plain', array $headers = [])
+    private function sendError(int $status, string $statusText, string $content = '', string $contentType = 'text/plain', array $headers = []): void
     {
         $response = Response::create(
             $content,

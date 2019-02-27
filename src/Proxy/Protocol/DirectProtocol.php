@@ -27,19 +27,20 @@ final class DirectProtocol extends AbstractProtocol
 
     private function computeTargetHost(): string
     {
-        $scheme = parse_url($this->request->getUri(), PHP_URL_SCHEME);
+        $scheme = (string) parse_url($this->request->getUri(), PHP_URL_SCHEME);
         $host = parse_url($this->request->getUri(), PHP_URL_HOST);
         $port = parse_url($this->request->getUri(), PHP_URL_PORT) ?? $this->getDefaultPort($scheme);
 
         return sprintf('%s:%d', $host, $port);
     }
 
-    protected function handle()
+    protected function handle(): void
     {
+        $path = preg_replace('@^.*?://.*?/@', '/', $this->request->getUri());
         $dataToSend = sprintf(
             "%s %s %s\r\n%s\r\n%s",
             $this->request->getMethod(),
-            preg_replace('@^.*?://.*?/@', '/', $this->request->getUri()),
+            $path,
             $this->request->getProtocol(),
             $this->getTargetHeaders(),
             $this->request->getBody()
@@ -55,7 +56,7 @@ final class DirectProtocol extends AbstractProtocol
     {
         $headers = $this->request->getHeaders();
         foreach ($headers->keys() as $key) {
-            if ('proxy-' === strtolower(substr($key, 0, 6))) {
+            if (0 === strpos(strtolower($key), 'proxy-')) {
                 $headers->remove($key);
             }
         }
@@ -66,6 +67,15 @@ final class DirectProtocol extends AbstractProtocol
         return $headers->__toString();
     }
 
+    /**
+     * Tell which port to connect to.
+     *
+     * @param string $scheme The scheme
+     *
+     * @return int
+     *
+     * @throws \Exception
+     */
     private function getDefaultPort(string $scheme): int
     {
         switch ($scheme) {

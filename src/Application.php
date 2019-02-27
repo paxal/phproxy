@@ -10,6 +10,7 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 final class Application extends BaseApplication
 {
+    /** @var \React\EventLoop\LoopInterface */
     private $loop;
 
     public function __construct()

@@ -7,22 +7,26 @@ namespace Paxal\Phproxy\Translator;
 class Translator implements TranslatorInterface
 {
     /**
+     * List of all translations.
+     *
      * @var string[]
      */
     private $translations = [];
 
     /**
+     * List of translations that translate a wildcard domain.
+     *
      * @var string[]
      */
-    private $fullDomainHosts = [];
+    private $suffixHostsTranslations = [];
 
     /**
-     * @var string[]
+     * @var string[] List of all translations
      */
     public function __construct(array $translations = [])
     {
         $this->translations = $translations;
-        $this->fullDomainHosts = array_filter(
+        $this->suffixHostsTranslations = array_filter(
             $translations,
             function (string $hostname) {
                 return '.' === $hostname[0];
@@ -31,13 +35,21 @@ class Translator implements TranslatorInterface
         );
     }
 
+    /**
+     * Translate a host. Will *not* return null if no match is found, but returns something usable.
+     *
+     * @param string $host The host to translate
+     *
+     * @return string The translated host, maybe the host itself
+     */
     public function translate(string $host): string
     {
-        $translation = $this->translations[$host] ?? $this->tryFullDomain($host);
+        $translation = $this->translations[$host] ?? $this->tryWildcardDomain($host);
         if (null !== $translation) {
             return $translation;
         }
 
+        // Translation might work for specific host/port, so let's keep this order.s
         if (false !== strpos($host, ':')) {
             [$domain, $port] = explode(':', $host, 2);
 
@@ -47,11 +59,20 @@ class Translator implements TranslatorInterface
         return $host;
     }
 
-    private function tryFullDomain(string $host): ?string
+    /**
+     * Try to translate an host with wildcards domains.
+     *
+     * @param string $host The host name
+     *
+     * @return string|null null if no match, otherwise the translated domain
+     */
+    private function tryWildcardDomain(string $host): ?string
     {
-        foreach ($this->fullDomainHosts as $fullDomainHost => $replacement) {
+        foreach ($this->suffixHostsTranslations as $fullDomainHost => $replacement) {
+            // Replace if same suffix
             if (substr($host, -strlen($fullDomainHost)) === $fullDomainHost) {
-                if (false !== @inet_pton($replacement)) {
+                // Check if replacement is also a wildcard replacement
+                if ('.' !== $replacement[0]) {
                     return $replacement;
                 }
 

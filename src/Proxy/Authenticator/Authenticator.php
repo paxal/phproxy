@@ -8,5 +8,8 @@ use Paxal\Phproxy\Proxy\Request\ProxyRequest;
 
 interface Authenticator
 {
+    /**
+     * Authorize a proxy request.
+     */
     public function isAuthorized(ProxyRequest $request): bool;
 }
