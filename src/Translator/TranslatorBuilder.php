@@ -17,8 +17,6 @@ class TranslatorBuilder
 
     /**
      * Build the translator.
-     *
-     * @return TranslatorInterface
      */
     public function build(): TranslatorInterface
     {

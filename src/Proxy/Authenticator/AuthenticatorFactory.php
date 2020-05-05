@@ -6,7 +6,12 @@ namespace Paxal\Phproxy\Proxy\Authenticator;
 
 final class AuthenticatorFactory
 {
-    public static function create(array $credentials, string $type = 'Basic'): Authenticator
+    /**
+     * Creates authenticator. If any credential is given, it will be considered as basic.
+     *
+     * @param string[] $credentials
+     */
+    public static function create(array $credentials, string $type = 'basic'): Authenticator
     {
         if (0 !== count($credentials)) {
             switch ($type) {
