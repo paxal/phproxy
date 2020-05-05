@@ -8,6 +8,7 @@ use Paxal\Phproxy\Proxy\Authenticator\Authenticator;
 use Paxal\Phproxy\Proxy\Protocol\ProtocolProvider;
 use Paxal\Phproxy\Proxy\Request\ProxyRequest;
 use Paxal\Phproxy\Translator\TranslatorInterface;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
@@ -38,19 +39,37 @@ final class DataHandler
      */
     private $connection;
 
-    public function __construct(LoopInterface $loop, TranslatorInterface $translator, Authenticator $authenticator, ConnectionInterface $connection)
-    {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(
+        LoopInterface $loop,
+        TranslatorInterface $translator,
+        Authenticator $authenticator,
+        ConnectionInterface $connection,
+        LoggerInterface $logger
+    ) {
         $this->loop = $loop;
         $this->translator = $translator;
         $this->authenticator = $authenticator;
         $this->connection = $connection;
+        $this->logger = $logger;
     }
 
     public function __invoke(string $data): void
     {
         try {
             $request = ProxyRequest::create($data);
+
+            $this->logger->info('{method} {uri} {protocol}', [
+                'method' => $request->getMethod(),
+                'uri' => $request->getUri(),
+                'protocol' => $request->getProtocol(),
+            ]);
         } catch (\Throwable $e) {
+            $this->logger->error('Unrecognized command', ['error' => $e->getMessage()]);
             $this->sendError(500, 'Unrecognized command : '.$e->getMessage());
 
             return;
@@ -80,17 +99,20 @@ final class DataHandler
         $protocol->onClose($this);
 
         $targetHost = $this->translator->translate($protocol->getTargetHost());
-        error_log("{$request->getUri()} -> {$targetHost}");
+        $this->logger->notice('Redirecting : {uri} => {target}', ['uri' => $request->getUri(), 'target' => $targetHost]);
         (new Connector($this->loop))
             ->connect($targetHost)
             ->then(
                 $protocol,
-                function (\Exception $exception) {
+                function (\Exception $exception): void {
                     $this->sendError(500, 'Unable to connect', $exception->getMessage());
                 }
             );
     }
 
+    /**
+     * @param array<string, string[]|string> $headers
+     */
     private function sendError(int $status, string $statusText, string $content = '', string $contentType = 'text/plain', array $headers = []): void
     {
         $response = Response::create(

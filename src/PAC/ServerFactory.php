@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Paxal\Phproxy\PAC;
 
 use Paxal\Phproxy\Translator\TranslatorBuilder;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\ServerInterface;
@@ -20,9 +21,13 @@ class ServerFactory
     /** @var LoopInterface */
     private $loop;
 
-    public function __construct(LoopInterface $loop)
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(LoopInterface $loop, LoggerInterface $logger)
     {
         $this->loop = $loop;
+        $this->logger = $logger;
     }
 
     /**
@@ -31,8 +36,6 @@ class ServerFactory
      * @param string            $binding           Binding host, eg ip:port
      * @param string            $proxyHost         The proxy host, as of remote-side view (eg external_ip:port)
      * @param TranslatorBuilder $translatorBuilder The translator builder
-     *
-     * @return ServerInterface
      */
     public function create(string $binding, string $proxyHost, TranslatorBuilder $translatorBuilder): ServerInterface
     {
@@ -42,14 +45,19 @@ class ServerFactory
             $this->handle($connection, $contents);
         });
 
+        $this->loop->futureTick(function () use ($binding, $contents): void {
+            $this->logger->info('PAC Server listening on {binding}', ['binding' => $binding]);
+            $this->logger->debug('PAC Contents :'.PHP_EOL.$contents);
+        });
+
         return $server;
     }
 
     private function handle(ConnectionInterface $connection, string $contents): void
     {
         // Hodor !
-        $connection->on('data', function () use ($contents, $connection) {
-            error_log('Connection from '.$connection->getRemoteAddress());
+        $connection->on('data', function () use ($contents, $connection): void {
+            $this->logger->info('New PAC Connection from {remote}', ['remote' => $connection->getRemoteAddress()]);
             $connection->end($contents);
         });
     }

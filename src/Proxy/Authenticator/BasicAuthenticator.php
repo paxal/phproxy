@@ -9,15 +9,23 @@ use Paxal\Phproxy\Proxy\Request\ProxyRequest;
 final class BasicAuthenticator implements Authenticator
 {
     /**
-     * @var array
+     * @var array<string, array-key>
      */
     private $credentials;
 
+    /**
+     * @param array<string> $credentials
+     */
     public function __construct(array $credentials)
     {
         $this->credentials = array_flip($this->encode($credentials));
     }
 
+    /**
+     * @param array<string> $credentials
+     *
+     * @return array<string, array-key>
+     */
     private function encode(array $credentials): array
     {
         return array_map(
@@ -30,7 +38,7 @@ final class BasicAuthenticator implements Authenticator
 
     public function isAuthorized(ProxyRequest $request): bool
     {
-        $headerValue = $request->getHeaders()->get('proxy-authorization', null, true);
+        $headerValue = $request->getHeaders()->get('proxy-authorization', null);
         if (!\is_string($headerValue)) {
             return false;
         }

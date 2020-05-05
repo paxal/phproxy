@@ -50,10 +50,7 @@ TEMPLATE;
     /**
      * Build matches given hostnames.
      *
-     * @param string   $proxyHost
      * @param string[] $domains
-     *
-     * @return string
      */
     private static function buildMatches(string $proxyHost, array $domains): string
     {

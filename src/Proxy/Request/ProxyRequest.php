@@ -27,7 +27,7 @@ final class ProxyRequest
     private $protocol;
 
     /**
-     * @var HeaderBag
+     * @var HeaderBag<string, string[]>
      */
     private $headers;
 
@@ -36,6 +36,9 @@ final class ProxyRequest
      */
     private $body;
 
+    /**
+     * @param HeaderBag<string, string[]> $headers
+     */
     private function __construct(string $method, string $uri, string $protocol, HeaderBag $headers, string $body)
     {
         $this->method = $method;
@@ -63,6 +66,11 @@ final class ProxyRequest
         return new self($matches['METHOD'], $matches['URI'], $matches['PROTOCOL'], static::parseHeaders($headersLines), $body);
     }
 
+    /**
+     * @param string[] $headers
+     *
+     * @return HeaderBag<string, string[]>
+     */
     private static function parseHeaders(array $headers): HeaderBag
     {
         $bag = new HeaderBag();
@@ -74,41 +82,29 @@ final class ProxyRequest
         return $bag;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @return string
-     */
     public function getProtocol(): string
     {
         return $this->protocol;
     }
 
     /**
-     * @return HeaderBag
+     * @return HeaderBag<string, string[]>
      */
     public function getHeaders(): HeaderBag
     {
         return $this->headers;
     }
 
-    /**
-     * @return string
-     */
     public function getBody(): string
     {
         return $this->body;

@@ -72,8 +72,6 @@ final class DirectProtocol extends AbstractProtocol
      *
      * @param string $scheme The scheme
      *
-     * @return int
-     *
      * @throws \Exception
      */
     private function getDefaultPort(string $scheme): int

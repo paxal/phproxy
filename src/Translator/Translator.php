@@ -9,26 +9,26 @@ class Translator implements TranslatorInterface
     /**
      * List of all translations.
      *
-     * @var string[]
+     * @var array<string, string>
      */
     private $translations = [];
 
     /**
      * List of translations that translate a wildcard domain.
      *
-     * @var string[]
+     * @var array<string, string>
      */
     private $suffixHostsTranslations = [];
 
     /**
-     * @var string[] List of all translations
+     * @param array<string, string> $translations List of all translations
      */
     public function __construct(array $translations = [])
     {
         $this->translations = $translations;
         $this->suffixHostsTranslations = array_filter(
             $translations,
-            function (string $hostname) {
+            function (string $hostname): bool {
                 return '.' === $hostname[0];
             },
             ARRAY_FILTER_USE_KEY

@@ -9,6 +9,7 @@ use Paxal\Phproxy\Proxy\Authenticator\AuthenticatorFactory;
 use Paxal\Phproxy\Proxy\ConnectionHandler;
 use Paxal\Phproxy\Proxy\DataHandlerFactory;
 use Paxal\Phproxy\Translator\TranslatorBuilder;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use React\Socket\SecureServer;
 use React\Socket\TcpServer;
@@ -25,10 +26,16 @@ class ProxyCommand extends Command
      */
     private $loop;
 
-    public function __construct(LoopInterface $loop)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(LoopInterface $loop, LoggerInterface $logger)
     {
         parent::__construct();
         $this->loop = $loop;
+        $this->logger = $logger;
     }
 
     protected function configure(): void
@@ -47,14 +54,14 @@ class ProxyCommand extends Command
             ->addArgument('binding', InputArgument::OPTIONAL, 'Bind address', '127.0.0.1:8001');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $configurationFile = $input->getOption('config');
         if (is_string($configurationFile)) {
             if (file_exists($configurationFile)) {
                 $savedOptions = $this->cleanOptionForSave(OptionsHelper::read($configurationFile));
                 foreach ($savedOptions as $name => $option) {
-                    $input->setOption($name, $input->getOption($name) ?: $option);
+                    $input->setOption($name, $input->getOption($name) ?? $option);
                 }
             }
 
@@ -64,14 +71,16 @@ class ProxyCommand extends Command
         }
 
         $translatorBuilder = $this->buildTranslatorBuilder($input);
+        /** @phpstan-ignore-next-line */
         $authenticator = AuthenticatorFactory::create((array) $input->getOption('auth'));
-        $dataHandlerFactory = new DataHandlerFactory($this->loop, $translatorBuilder, $authenticator);
+        $dataHandlerFactory = new DataHandlerFactory($this->loop, $translatorBuilder, $authenticator, $this->logger);
 
         $binding = $input->getArgument('binding');
         if (!is_string($binding)) {
             throw new \RuntimeException('Invalid argument binding.');
         }
         $server = new TcpServer($binding, $this->loop);
+        $this->logger->info('PROXY Server listening on {binding}', ['binding' => $binding]);
 
         if ((bool) $input->getOption('ssl')) {
             $context = [];
@@ -95,6 +104,9 @@ class ProxyCommand extends Command
         }
 
         $this->loop->run();
+
+        // Never reached
+        return 1;
     }
 
     private function buildTranslatorBuilder(InputInterface $input): TranslatorBuilder
@@ -109,6 +121,11 @@ class ProxyCommand extends Command
         return $translatorBuilder;
     }
 
+    /**
+     * @param array<string, array<string>|string|null> $options
+     *
+     * @return array<string, string>
+     */
     private function cleanOptionForSave(array $options): array
     {
         $cleaned = [];
@@ -118,22 +135,24 @@ class ProxyCommand extends Command
             }
         }
 
+        /* @phpstan-ignore-next-line */
         return $cleaned;
     }
 
     private function configurePACServer(string $pacConfiguration, TranslatorBuilder $translatorBuilder): void
     {
-        $serverFactory = new ServerFactory($this->loop);
+        $serverFactory = new ServerFactory($this->loop, $this->logger);
         [$binding, $proxyHost] = $this->parsePACConfiguration($pacConfiguration);
         $serverFactory->create($binding, $proxyHost, $translatorBuilder);
     }
 
+    /**
+     * @return array{0: string, 1: string}
+     */
     private function parsePACConfiguration(string $pacConfiguration): array
     {
         if (!(bool) preg_match('|^(.+?:\d+?):(.+?:\d+?)$|', $pacConfiguration, $matches)) {
-            throw new \InvalidArgumentException(
-                'Bad PAC configuration value : should be BINDING_HOST:BINDING_PORT:EXTERNAL_PROXY_HOST:EXTERNAL_PROXY_PORT'
-            );
+            throw new \InvalidArgumentException('Bad PAC configuration value : should be BINDING_HOST:BINDING_PORT:EXTERNAL_PROXY_HOST:EXTERNAL_PROXY_PORT');
         }
 
         return [$matches[1], $matches[2]];
