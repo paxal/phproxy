@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "8.0.x",
+        "php": "8.0.x||8.1.x",
         "react/event-loop": "^1.0",
         "react/socket": "^1.1",
         "symfony/console": "^6.0",
