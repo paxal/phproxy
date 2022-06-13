@@ -8,29 +8,35 @@ use Paxal\Phproxy\Proxy\Request\ProxyRequest;
 
 final class BasicAuthenticator implements Authenticator
 {
-    /**
-     * @var array
-     */
-    private $credentials;
+    public const TYPE = 'basic';
 
+    /** @var array<string, int> */
+    private array $credentials;
+
+    /**
+     * @param list<string> $credentials
+     */
     public function __construct(array $credentials)
     {
         $this->credentials = array_flip($this->encode($credentials));
     }
 
+    /**
+     * @param list<string> $credentials
+     *
+     * @return list<string>
+     */
     private function encode(array $credentials): array
     {
         return array_map(
-            function (string $credentials): string {
-                return base64_encode($credentials);
-            },
+            fn (string $credentials): string => base64_encode($credentials),
             $credentials
         );
     }
 
     public function isAuthorized(ProxyRequest $request): bool
     {
-        $headerValue = $request->getHeaders()->get('proxy-authorization', null, true);
+        $headerValue = $request->getHeaders()->get('proxy-authorization');
         if (!\is_string($headerValue)) {
             return false;
         }

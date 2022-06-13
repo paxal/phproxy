@@ -12,20 +12,9 @@ use React\Socket\ConnectionInterface;
 
 final class DataHandlerFactory
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var Authenticator
-     */
-    private $authenticator;
+    private LoopInterface $loop;
+    private TranslatorInterface $translator;
+    private Authenticator $authenticator;
 
     public function __construct(LoopInterface $loop, TranslatorBuilder $translatorBuilder, Authenticator $authenticator)
     {

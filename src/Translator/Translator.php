@@ -9,28 +9,26 @@ class Translator implements TranslatorInterface
     /**
      * List of all translations.
      *
-     * @var string[]
+     * @var array<string, string>
      */
-    private $translations = [];
+    private array $translations;
 
     /**
      * List of translations that translate a wildcard domain.
      *
-     * @var string[]
+     * @var array<string, string>
      */
-    private $suffixHostsTranslations = [];
+    private array $suffixHostsTranslations;
 
     /**
-     * @var string[] List of all translations
+     * @param array<string, string> $translations List of all translations
      */
     public function __construct(array $translations = [])
     {
         $this->translations = $translations;
         $this->suffixHostsTranslations = array_filter(
             $translations,
-            function (string $hostname) {
-                return '.' === $hostname[0];
-            },
+            static fn (string $hostname): bool => '.' === $hostname[0],
             ARRAY_FILTER_USE_KEY
         );
     }
@@ -50,7 +48,7 @@ class Translator implements TranslatorInterface
         }
 
         // Translation might work for specific host/port, so let's keep this order.s
-        if (false !== strpos($host, ':')) {
+        if (str_contains($host, ':')) {
             [$domain, $port] = explode(':', $host, 2);
 
             return join(':', [$this->translate($domain), $port]);
@@ -70,7 +68,7 @@ class Translator implements TranslatorInterface
     {
         foreach ($this->suffixHostsTranslations as $fullDomainHost => $replacement) {
             // Replace if same suffix
-            if (substr($host, -strlen($fullDomainHost)) === $fullDomainHost) {
+            if (str_ends_with($host, $fullDomainHost)) {
                 // Check if replacement is also a wildcard replacement
                 if ('.' !== $replacement[0]) {
                     return $replacement;

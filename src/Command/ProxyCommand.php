@@ -20,15 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ProxyCommand extends Command
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-
-    public function __construct(LoopInterface $loop)
+    public function __construct(private LoopInterface $loop)
     {
         parent::__construct();
-        $this->loop = $loop;
     }
 
     protected function configure(): void
@@ -47,14 +41,17 @@ class ProxyCommand extends Command
             ->addArgument('binding', InputArgument::OPTIONAL, 'Bind address', '127.0.0.1:8001');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $configurationFile = $input->getOption('config');
         if (is_string($configurationFile)) {
             if (file_exists($configurationFile)) {
                 $savedOptions = $this->cleanOptionForSave(OptionsHelper::read($configurationFile));
                 foreach ($savedOptions as $name => $option) {
-                    $input->setOption($name, $input->getOption($name) ?: $option);
+                    $input->setOption($name, match ($input->getOption($name)) {
+                        '', [], null, false => $option,
+                        default => $input->getOption($name),
+                    });
                 }
             }
 
@@ -64,7 +61,9 @@ class ProxyCommand extends Command
         }
 
         $translatorBuilder = $this->buildTranslatorBuilder($input);
-        $authenticator = AuthenticatorFactory::create((array) $input->getOption('auth'));
+        /** @var list<string> $auth */
+        $auth = $input->getOption('auth');
+        $authenticator = AuthenticatorFactory::create($auth);
         $dataHandlerFactory = new DataHandlerFactory($this->loop, $translatorBuilder, $authenticator);
 
         $binding = $input->getArgument('binding');
@@ -95,20 +94,28 @@ class ProxyCommand extends Command
         }
 
         $this->loop->run();
+
+        return 0;
     }
 
     private function buildTranslatorBuilder(InputInterface $input): TranslatorBuilder
     {
         $translatorBuilder = TranslatorBuilder::create();
-        $translations = (array) $input->getOption('translate');
+        /** @var list<string> $translations */
+        $translations = $input->getOption('translate');
         foreach ($translations as $translation) {
-            [$from, $to] = explode('=', (string) $translation, 2);
+            [$from, $to] = explode('=', $translation, 2);
             $translatorBuilder->set($from, $to);
         }
 
         return $translatorBuilder;
     }
 
+    /**
+     * @param mixed[] $options
+     *
+     * @return mixed[]
+     */
     private function cleanOptionForSave(array $options): array
     {
         $cleaned = [];
@@ -128,12 +135,13 @@ class ProxyCommand extends Command
         $serverFactory->create($binding, $proxyHost, $translatorBuilder);
     }
 
+    /**
+     * @return array{string,string}
+     */
     private function parsePACConfiguration(string $pacConfiguration): array
     {
         if (!(bool) preg_match('|^(.+?:\d+?):(.+?:\d+?)$|', $pacConfiguration, $matches)) {
-            throw new \InvalidArgumentException(
-                'Bad PAC configuration value : should be BINDING_HOST:BINDING_PORT:EXTERNAL_PROXY_HOST:EXTERNAL_PROXY_PORT'
-            );
+            throw new \InvalidArgumentException('Bad PAC configuration value : should be BINDING_HOST:BINDING_PORT:EXTERNAL_PROXY_HOST:EXTERNAL_PROXY_PORT');
         }
 
         return [$matches[1], $matches[2]];

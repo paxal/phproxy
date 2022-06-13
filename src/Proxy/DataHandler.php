@@ -18,25 +18,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class DataHandler
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var Authenticator
-     */
-    private $authenticator;
-
-    /**
-     * @var ConnectionInterface
-     */
-    private $connection;
+    private LoopInterface $loop;
+    private TranslatorInterface $translator;
+    private Authenticator $authenticator;
+    private ConnectionInterface $connection;
 
     public function __construct(LoopInterface $loop, TranslatorInterface $translator, Authenticator $authenticator, ConnectionInterface $connection)
     {
@@ -91,9 +76,12 @@ final class DataHandler
             );
     }
 
+    /**
+     * @param array<string, string> $headers
+     */
     private function sendError(int $status, string $statusText, string $content = '', string $contentType = 'text/plain', array $headers = []): void
     {
-        $response = Response::create(
+        $response = new Response(
             $content,
             $status,
             ['Connection' => 'close', 'Content-type' => $contentType, 'Proxy-agent' => 'Phproxy']

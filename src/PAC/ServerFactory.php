@@ -31,8 +31,6 @@ class ServerFactory
      * @param string            $binding           Binding host, eg ip:port
      * @param string            $proxyHost         The proxy host, as of remote-side view (eg external_ip:port)
      * @param TranslatorBuilder $translatorBuilder The translator builder
-     *
-     * @return ServerInterface
      */
     public function create(string $binding, string $proxyHost, TranslatorBuilder $translatorBuilder): ServerInterface
     {
