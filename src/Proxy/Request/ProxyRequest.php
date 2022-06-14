@@ -11,30 +11,11 @@ use Symfony\Component\HttpFoundation\HeaderBag;
  */
 final class ProxyRequest
 {
-    /**
-     * @var string
-     */
-    private $method;
-
-    /**
-     * @var string
-     */
-    private $uri;
-
-    /**
-     * @var string
-     */
-    private $protocol;
-
-    /**
-     * @var HeaderBag
-     */
-    private $headers;
-
-    /**
-     * @var string
-     */
-    private $body;
+    private string $method;
+    private string $uri;
+    private string $protocol;
+    private HeaderBag $headers;
+    private string $body;
 
     private function __construct(string $method, string $uri, string $protocol, HeaderBag $headers, string $body)
     {
@@ -55,7 +36,7 @@ final class ProxyRequest
         $firstLine = array_shift($headersLines);
         $headersLines = array_filter($headersLines);
 
-        $doesMatch = (bool) preg_match('@^(?<METHOD>.*?) (?<URI>.*?) (?<PROTOCOL>.*?)$@', (string) $firstLine, $matches);
+        $doesMatch = (bool) preg_match('@^(?<METHOD>.*?) (?<URI>.*?) (?<PROTOCOL>.*?)$@', $firstLine, $matches);
         if (!$doesMatch) {
             throw new \InvalidArgumentException('Operation not supported');
         }
@@ -63,6 +44,9 @@ final class ProxyRequest
         return new self($matches['METHOD'], $matches['URI'], $matches['PROTOCOL'], static::parseHeaders($headersLines), $body);
     }
 
+    /**
+     * @param list<string> $headers
+     */
     private static function parseHeaders(array $headers): HeaderBag
     {
         $bag = new HeaderBag();
@@ -74,41 +58,26 @@ final class ProxyRequest
         return $bag;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @return string
-     */
     public function getProtocol(): string
     {
         return $this->protocol;
     }
 
-    /**
-     * @return HeaderBag
-     */
     public function getHeaders(): HeaderBag
     {
         return $this->headers;
     }
 
-    /**
-     * @return string
-     */
     public function getBody(): string
     {
         return $this->body;

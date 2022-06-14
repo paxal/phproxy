@@ -6,6 +6,9 @@ namespace Paxal\Phproxy\Command;
 
 class OptionsHelper
 {
+    /**
+     * @return mixed[]
+     */
     public static function read(string $filename): array
     {
         $contents = @file_get_contents($filename);
@@ -25,6 +28,9 @@ class OptionsHelper
         return $json;
     }
 
+    /**
+     * @param mixed[] $options
+     */
     public static function save(string $filename, array $options): void
     {
         @file_put_contents(

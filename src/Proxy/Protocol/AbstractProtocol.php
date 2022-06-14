@@ -46,7 +46,7 @@ abstract class AbstractProtocol implements Protocol
     protected function pipe(): void
     {
         $this->local->pipe($this->remote);
-        $this->remote->pipe($this->local, [/*'end' => false*/]);
+        $this->remote->pipe($this->local, [/* 'end' => false */]);
         $this->remote->on('close', function () {
             $this->local->on('data', $this->afterClosedOnData);
         });

@@ -9,7 +9,7 @@ class TranslatorBuilder
     /**
      * @var array<string, string>
      */
-    private $translations = [];
+    private array $translations = [];
 
     protected function __construct()
     {
@@ -17,8 +17,6 @@ class TranslatorBuilder
 
     /**
      * Build the translator.
-     *
-     * @return TranslatorInterface
      */
     public function build(): TranslatorInterface
     {

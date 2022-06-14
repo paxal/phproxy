@@ -33,7 +33,7 @@ TEMPLATE;
         $matches = self::buildMatches($proxyHost, $translatedDomains);
 
         $contents = sprintf($template, $matches);
-        $response = Response::create(
+        $response = new Response(
             $contents,
             Response::HTTP_OK,
             [
@@ -50,10 +50,7 @@ TEMPLATE;
     /**
      * Build matches given hostnames.
      *
-     * @param string   $proxyHost
      * @param string[] $domains
-     *
-     * @return string
      */
     private static function buildMatches(string $proxyHost, array $domains): string
     {
