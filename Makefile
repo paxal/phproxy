@@ -11,16 +11,16 @@ VENDOR_BIN := $(VENDOR_BIN_PHPSTAN) $(VENDOR_BIN_PHPUNIT) $(VENDOR_BIN_CSFIXER)
 test: phpstan php-cs-fixer phpunit
 
 $(addprefix ./vendor/bin/,phpstan phpunit php-cs-fixer):
-	composer install
+	$(COMPOSER) install
 
 $(VENDOR_BIN): vendor/autoload.php
-	composer install
+	$(COMPOSER) install
 
 vendor/autoload.php: composer.lock
-	composer install
+	$(COMPOSER) install
 
 composer.lock: composer.json
-	composer up
+	$(COMPOSER) up
 
 phproxy.phar: test
 	$(COMPOSER) install --no-dev -a
