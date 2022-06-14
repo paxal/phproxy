@@ -1,6 +1,7 @@
 {
     "name": "paxal/phproxy",
     "type": "project",
+    "license": "MIT",
     "description": "HTTP/HTTPS proxy that allows to redirect traffic",
     "authors": [
         {
